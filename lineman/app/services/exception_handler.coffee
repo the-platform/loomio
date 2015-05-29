@@ -8,4 +8,4 @@ angular.module('loomioApp').factory '$exceptionHandler', ->
         params:
           user_id: window.Loomio.currentUserId
 
-    console.log "Loomio exception: #{exception.message}", exception, cause
+    console.error "LoomioApp exception:", exception, cause
