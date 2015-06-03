@@ -8,6 +8,7 @@ module.exports = require(process.env["LINEMAN_MAIN"]).config.extend "files",
   css:
     app:    ['generated/css/main.css']
     vendor: ['vendor/bower_components/components-font-awesome/css/font-awesome.css']
+
   coffee:
     app: "app/**/*.coffee"
 
@@ -17,8 +18,9 @@ module.exports = require(process.env["LINEMAN_MAIN"]).config.extend "files",
              "vendor/bower_components/jquery/dist/jquery.js",
              "vendor/bower_components/ng-file-upload/angular-file-upload-shim.js"
              "vendor/bower_components/angular/angular.js",
+             "vendor/bower_components/angular-mocks/angular-mocks.js",
              "vendor/bower_components/angular-sanitize/angular-sanitize.js",
-             "node_modules/angular-new-router/dist/router.es5.js",
+             "node_modules/loomio-angular-router/dist/router.es5.js",
              "vendor/bower_components/angular-translate/angular-translate.js",
              "vendor/bower_components/angular-translate-loader-url/angular-translate-loader-url.js",
              "vendor/bower_components/angular-bootstrap/ui-bootstrap.js",
@@ -37,5 +39,6 @@ module.exports = require(process.env["LINEMAN_MAIN"]).config.extend "files",
              "vendor/bower_components/angular-gravatar/build/md5.js",
              "vendor/bower_components/angular-truncate/src/truncate.js",
              "vendor/bower_components/angular-scroll/angular-scroll.js"]
+
     app: ["app/app.js"
           "app/**/*.js"]

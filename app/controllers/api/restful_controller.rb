@@ -11,6 +11,8 @@ class API::RestfulController < API::BaseController
     attr_writer :resource_class
   end
 
+  API_DATE_PARAMETERS = %w(since until).freeze
+
   rescue_from CanCan::AccessDenied                    do |e| respond_with_standard_error e, 403 end
   rescue_from ActionController::UnpermittedParameters do |e| respond_with_standard_error e, 400 end
 
@@ -43,37 +45,9 @@ class API::RestfulController < API::BaseController
 
   private
 
-  def load_and_authorize_group
-    if params[:group_id]
-      @group = Group.find(params[:group_id])
-    elsif params[:group_key]
-      @group = Group.find_by_key!(params[:group_key])
-    elsif params[:id]
-      @group = Group.friendly.find(params[:id])
-    end
-    authorize! :show, @group
-  end
-
-  def load_and_authorize_discussion
-    if params[:discussion_id]
-      @discussion = Discussion.find(params[:discussion_id])
-    elsif params[:discussion_key]
-      @discussion = Discussion.find_by_key!(params[:discussion_key])
-    elsif params[:id]
-      @discussion = Discussion.friendly.find(params[:id])
-    end
-    authorize! :show, @discussion
-  end
-
-  def load_and_authorize_motion
-    if params[:motion_id]
-      @motion = Motion.find(params[:motion_id])
-    elsif params[:motion_key]
-      @motion = Motion.find_by_key!(params[:motion_key])
-    elsif params[:id]
-      @motion = Motion.friendly.find(params[:id])
-    end
-    authorize! :show, @motion
+  def load_and_authorize(model)
+    instance_variable_set :"@#{model}", ModelLocator.new(model, params).locate 
+    authorize! :show, instance_variable_get(:"@#{model}")
   end
 
   def collection
@@ -96,8 +70,25 @@ class API::RestfulController < API::BaseController
     self.resource = resource_class.new(resource_params)
   end
 
-  def instantiate_collection
-    self.collection = page_collection(visible_records).to_a
+  def instantiate_collection(timeframe_collection: true, page_collection: true)
+    collection = visible_records
+    collection = yield collection                if block_given?
+    collection = timeframe_collection collection if timeframe_collection
+    collection = page_collection collection      if page_collection
+    self.collection = collection.to_a
+  end
+
+  def timeframe_collection(collection)
+    if resource_class.try(:has_timeframe?) && (params[:since] || params[:until])
+      parse_date_parameters # I feel like Rails should do this for me..
+      collection.within(params[:since], params[:until], params[:timeframe_for])
+    else
+      collection
+    end
+  end
+
+  def parse_date_parameters
+    API_DATE_PARAMETERS.each { |field| params[field] = DateTime.parse(params[field].to_s) if params[field] }
   end
 
   def page_collection(collection)

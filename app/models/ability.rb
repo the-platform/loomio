@@ -68,6 +68,9 @@ class Ability
       user_is_admin_of?(group.id)
     end
 
+    can :export, Group do |group|
+      user_is_admin_of?(group.id) && group.enabled_beta_features.include?('export')
+    end
 
     can [:members_autocomplete, :set_volume, :see_members], Group do |group|
       user_is_member_of?(group.id)
@@ -153,6 +156,7 @@ class Ability
     end
 
     can [:show,
+         :print,
          :mark_as_read], Discussion do |discussion|
       if discussion.is_archived?
         false

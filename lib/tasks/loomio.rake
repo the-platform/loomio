@@ -43,4 +43,20 @@ namespace :loomio do
       dr.reset_counts!
     end
   end
+
+  task tag_and_measure_cohorts: :environment do
+    CohortService.tag_groups
+    MeasurementService.measure_groups(Date.yesterday)
+  end
+
+  task measure_groups_lots: :environment do
+    CohortService.tag_groups
+    date = 10.weeks.ago.to_date
+    while(date < Date.today) do
+      puts 'hi'
+      MeasurementService.measure_groups(date)
+      puts "measured #{date}"
+      date = date + 1.day
+    end
+  end
 end

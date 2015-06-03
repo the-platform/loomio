@@ -3,5 +3,7 @@ angular.module('loomioApp').directive 'navbarUserOptions', ->
   restrict: 'E'
   templateUrl: 'generated/components/navbar/navbar_user_options.html'
   replace: true
-  controller: 'NavbarController'
-  link: (scope, element, attrs) ->
+  controller: ($scope, DiscussionFormService, CurrentUser) ->
+    $scope.currentUser = CurrentUser
+    $scope.openDiscussionForm = ->
+      DiscussionFormService.openNewDiscussionModal()

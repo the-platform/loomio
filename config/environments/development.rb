@@ -7,9 +7,9 @@ Loomio::Application.configure do
   # Log error messages when you accidentally call methods on nil.
   config.whiny_nils = true
 
-  # Show full error reports and disable caching
+  # Show full error reports and enable caching
   config.consider_all_requests_local       = true
-  config.action_controller.perform_caching = false
+  config.action_controller.perform_caching = true
 
   # Print deprecation notices to the Rails logger
   config.active_support.deprecation = :log
@@ -25,12 +25,13 @@ Loomio::Application.configure do
   config.assets.raise_runtime_errors = true
   config.assets.raise_production_errors = true
   config.sass.debug_info = true
+
   # support scss support in chrome devtools
   #
   config.sass.line_comments = false
 
   # config.action_mailer.asset_host = "http://localhost:3000"
-  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.raise_delivery_errors = false
   config.action_mailer.default_url_options = { host: 'localhost', port: 3000 }
   config.action_mailer.delivery_method = :smtp
 
@@ -38,20 +39,6 @@ Loomio::Application.configure do
 
   config.eager_load = false
   config.roadie.url_options = {host: 'localhost'}
-
-  # Use these settings to send mail from gmail. If you use 2-step authentication on
-  # your google account, create a new application-specific password and use it in here
-  # http://guides.rubyonrails.org/action_mailer_basics.html#action-mailer-configuration-for-gmail
-  #
-  # config.action_mailer.smtp_settings = {
-  #   address:              'smtp.gmail.com',
-  #   port:                 587,
-  #   domain:               'example.com',
-  #   user_name:            ENV['GMAIL_USER_NAME'],
-  #   password:             ENV['GMAIL_PASSWORD'],
-  #   authentication:       'plain',
-  #   enable_starttls_auto: true
-  # }
 
   config.action_mailer.file_settings = {
     :location => Rails.root.join('tmp/mail')

@@ -7,8 +7,10 @@ describe API::DiscussionsController do
   let(:subgroup) { create :group, parent: group }
   let(:another_group) { create :group }
   let(:discussion) { create :discussion, group: group }
+  let(:participating_discussion) { create :discussion, group: group }
   let(:subgroup_discussion) { create :discussion, group: subgroup }
   let(:muted_discussion) { create :discussion, group: group }
+  let(:starred_discussion) { create :discussion, group: group }
   let(:old_discussion) { create :discussion, group: group, created_at: 4.months.ago, last_activity_at: 4.months.ago }
   let(:motionless_discussion) { create :discussion, group: group }
   let(:comment) { create :comment, discussion: discussion}
@@ -27,21 +29,13 @@ describe API::DiscussionsController do
     sign_in user
     discussion.reload
     DiscussionReader.for(user: user, discussion: muted_discussion).set_volume! 'mute'
+    DiscussionReader.for(user: user, discussion: starred_discussion).update starred: true
   end
 
-  describe 'inbox_by_date' do
-    it 'returns discussions with activity after a certain date' do
-      old_discussion.reload
-      get :inbox_by_date
-      json = JSON.parse(response.body)
-      ids = json['discussions'].map { |v| v['id'] }
-      expect(ids).to include discussion.id
-      expect(ids).to_not include old_discussion.id
-    end
-
-    it 'does not return muted discussions' do
+  describe 'dashboard' do
+    it 'does not return muted discussions by default' do
       muted_discussion.reload
-      get :inbox_by_date
+      get :dashboard
       json = JSON.parse(response.body)
       ids = json['discussions'].map { |v| v['id'] }
       expect(ids).to_not include muted_discussion.id
@@ -50,52 +44,56 @@ describe API::DiscussionsController do
     it 'can filter by active proposals' do
       proposal.reload
       motionless_discussion.reload
-      get :inbox_by_date, filter: :show_proposals
+      get :dashboard, filter: :show_proposals
       json = JSON.parse(response.body)
       ids = json['discussions'].map { |v| v['id'] }
       expect(ids).to include discussion.id
       expect(ids).to_not include motionless_discussion.id
     end
-  end
 
-  describe 'inbox_by_organization' do
-    it 'returns a list of discussions by organization' do
-      get :inbox_by_organization
-      json = JSON.parse(response.body)
-      expect(json.keys).to include *(%w[users groups proposals discussions])
-    end
-
-    it 'returns results from subgroups' do
-      subgroup_discussion
-      get :inbox_by_organization
+    it 'can filter by participating' do
+      CommentService.create actor: user, comment: build(:comment, discussion: participating_discussion)
+      get :dashboard, filter: :show_participating
       json = JSON.parse(response.body)
       ids = json['discussions'].map { |v| v['id'] }
-      expect(ids).to include subgroup_discussion.id
-    end
-  end
-
-  describe 'inbox_by_group' do
-    it 'returns a list of discussions by group' do
-      get :inbox_by_group
-      json = JSON.parse(response.body)
-      expect(json.keys).to include *(%w[users groups proposals discussions])
+      expect(ids).to include participating_discussion.id
+      expect(ids).to_not include discussion.id  
     end
 
-    it 'returns results from multiple groups' do
-      create :discussion, group: another_group
-      get :inbox_by_group
+    it 'can filter by muted' do
+      muted_discussion.reload
+      get :dashboard, filter: :show_muted
       json = JSON.parse(response.body)
-      group_ids = json['discussions'].map { |v| v['group_id'] }
-      expect(group_ids).to include group.id
-      expect(group_ids).to include another_group.id
+      ids = json['discussions'].map { |v| v['id'] }
+      expect(ids).to include muted_discussion.id
+      expect(ids).to_not include discussion.id
     end
 
-    it 'returns a threshhold of results per group' do
-      3.times { create :discussion, group: another_group }
-      get :inbox_by_group, per: 2
+    it 'can filter by starred' do
+      starred_discussion.reload
+      get :dashboard, filter: :show_starred
       json = JSON.parse(response.body)
-      group_ids = json['discussions'].map { |v| v['group_id'] }
-      expect(group_ids.count { |id| id == another_group.id }).to eq 2
+      ids = json['discussions'].map { |v| v['id'] }
+      expect(ids).to include starred_discussion.id
+      expect(ids).to_not include discussion.id
+    end
+
+    it 'can filter since a certain date' do
+      old_discussion.reload
+      get :dashboard, since: 3.months.ago
+      json = JSON.parse(response.body)
+      ids = json['discussions'].map { |v| v['id'] }
+      expect(ids).to include discussion.id
+      expect(ids).to_not include old_discussion.id
+    end
+
+    it 'can filter until a certain date' do
+      old_discussion.reload
+      get :dashboard, until: 3.months.ago
+      json = JSON.parse(response.body)
+      ids = json['discussions'].map { |v| v['id'] }
+      expect(ids).to_not include discussion.id
+      expect(ids).to include old_discussion.id
     end
   end
 
@@ -110,7 +108,7 @@ describe API::DiscussionsController do
   end
 
   describe 'index' do
-    let(:another_discussion)    { create :discussion }
+    let(:another_discussion)    { create :discussion, group: another_group }
 
     before do
       discussion; another_discussion
@@ -132,6 +130,35 @@ describe API::DiscussionsController do
         json = JSON.parse(response.body)
         discussions = json['discussions'].map { |v| v['id'] }
         expect(discussions).to_not include cant_see_me.id
+      end
+
+      it 'can display content from a specified public group' do
+        public_group = create :group, discussion_privacy_options: :public_only, is_visible_to_public: true
+        can_see_me = create :discussion, group: public_group, private: false
+        get :index, group_id: public_group.id, format: :json
+        json = JSON.parse(response.body)
+        discussions = json['discussions'].map { |v| v['id'] }
+        expect(discussions).to include can_see_me.id
+      end
+
+      it 'responds to a since parameter' do
+        four_months_ago = create :discussion, group: group, created_at: 4.months.ago, last_activity_at: 4.months.ago
+        two_months_ago = create :discussion, group: group, created_at: 2.months.ago, last_activity_at: 2.months.ago
+        get :index, group_id: group.id, format: :json, since: 3.months.ago
+        json = JSON.parse(response.body)
+        discussions = json['discussions'].map { |v| v['id'] }
+        expect(discussions).to include two_months_ago.id
+        expect(discussions).to_not include four_months_ago.id
+      end
+
+      it 'responds to an until parameter' do
+        four_months_ago = create :discussion, group: group, created_at: 4.months.ago, last_activity_at: 4.months.ago
+        two_months_ago = create :discussion, group: group, created_at: 2.months.ago, last_activity_at: 2.months.ago
+        get :index, group_id: group.id, format: :json, until: 3.months.ago
+        json = JSON.parse(response.body)
+        discussions = json['discussions'].map { |v| v['id'] }
+        expect(discussions).to include four_months_ago.id
+        expect(discussions).to_not include two_months_ago.id
       end
     end
   end

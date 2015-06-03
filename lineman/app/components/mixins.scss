@@ -7,15 +7,14 @@ $list-hover-color: #E0E0E0;
 $list-hover-transparent-color: rgba(224,224,224,0.8);
 $background-color: #ebebeb;
 $card-background-color: #fff;
+$highlight-red: #D0021B;
 
 $item-highlight-color: #FFFFE8;
 $progress-bar-color: #176EE3;
 $loomio-orange: #F6A82B;
 
 $main-max-width: 640px;
-$sidebar-width: 320px;
-$group-page-break-point: 480px;
-$group-page-max-width: $main-max-width + $sidebar-width;
+$large-max-width: 960px;
 $navbar-height: 45px;
 
 @mixin fontTiny {
@@ -101,6 +100,15 @@ $navbar-height: 45px;
 @mixin thinRoundedBorder {
   border: 1px solid $border-color;
   @include roundedCorners;
+}
+
+@mixin fontReset{
+  color: $primary-text-color;
+  text-transform: none;
+  @include fontHelvetica;
+  @include fontMedium;
+  margin: 0;
+  padding: 0;
 }
 
 #turn-off-angular {

@@ -1,6 +1,7 @@
 class NetworksController < BaseController
   include DiscussionIndexCacheHelper
   before_filter :authenticate_user!, except: [:show, :groups]
+  after_filter :clear_discussion_index_caches, only: :show
 
   def show
     @network = Network.friendly.find params[:id]

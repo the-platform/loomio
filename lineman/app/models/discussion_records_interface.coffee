@@ -3,19 +3,25 @@ angular.module('loomioApp').factory 'DiscussionRecordsInterface', (BaseRecordsIn
     model: DiscussionModel
 
     fetchByGroup: (options = {}) ->
-      @restfulClient.getCollection
-        group_id: options['group_id']
-        from:     options['from']
-        per:      options['per']
+      @fetch
+        params:
+          group_id: options['group_id']
+          from: options['from']
+          per: options['per']
 
-    fetchInboxByDate: (options = {}) ->
-      @restfulClient.get 'inbox_by_date', options
+    fetchDashboard: (options = {}) ->
+      @fetch
+        path: 'dashboard'
+        params: options
+        cacheKey: dashboardCacheKeyFor(options)
 
-    fetchInboxByOrganization: (options = {}) ->
-      @restfulClient.get 'inbox_by_organization', options
+    dashboardCacheKeyFor = (options) ->
+      "#{options['filter']}Dashboard" unless options['filter'] == 'show_all'
 
-    fetchInboxByGroup: (options = {}) ->
-      @restfulClient.get 'inbox_by_group', options
-
-    findByDiscussionIds: (ids) ->
-      @collection.chain().find({id: { $in: ids} })
+    fetchInbox: ->
+      @fetchDashboard
+        filter: 'show_unread'
+        from: 0
+        per: 100
+        since: moment().startOf('day').subtract(3, 'month').toDate()
+        timeframe_for: 'last_activity_at'

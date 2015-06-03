@@ -2,6 +2,7 @@ class Motion < ActiveRecord::Base
   CHART_COLOURS = ["#90D490", "#F0BB67", "#D49090", "#dd0000", '#ccc']
 
   include ReadableUnguessableUrls
+  include HasTimeframe
 
   belongs_to :author, class_name: 'User'
   belongs_to :user, foreign_key: 'author_id' # duplicate author relationship for eager loading
@@ -34,6 +35,7 @@ class Motion < ActiveRecord::Base
   delegate :name_and_email, to: :user, prefix: :author
   delegate :locale, to: :user
   delegate :followers, to: :discussion
+  delegate :title, to: :discussion, prefix: :discussion
   has_paper_trail only: [:name, :description, :closing_at]
 
   after_initialize :set_default_closing_at
@@ -48,6 +50,12 @@ class Motion < ActiveRecord::Base
   #scope :visible_to_public,        -> { joins(:discussion).merge(Discussion.public) }
   scope :voting_or_closed_after,   ->(time) { where('motions.closed_at IS NULL OR (motions.closed_at > ?)', time) }
   scope :closing_in_24_hours,      -> { where('motions.closing_at > ? AND motions.closing_at <= ?', Time.now, 24.hours.from_now) }
+  scope :chronologically, -> { order('created_at asc') }
+
+
+  def proposal_title
+    name
+  end
 
   def has_outcome?
     outcome.present?

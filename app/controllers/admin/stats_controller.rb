@@ -1,9 +1,27 @@
 class Admin::StatsController < Admin::BaseController
   helper_method :format_percents
+  helper_method :data_for
+  layout 'admin'
+
+  def aaarrr
+    #arrrrrrr!!!
+    @cohorts = Cohort.all
+  end
+
+  def cohorts
+    @measurements = MeasurementService.measurement_names
+    @cohorts = Cohort.all
+    @ages = CohortService.avg_by_age(cohort: @cohorts.first, measurement: @measurements.first).map{|e| e['age'].to_i}
+    #data: pad_data(CohortService.avg_by_age(cohort: cohort, measurement: @measurement).map{|e| e['avg'].to_f.round(2)}) }
+  end
+
+  def data_for(cohort, measurement)
+    CohortService.avg_by_age(cohort: cohort, measurement: measurement).map{|e| e['avg'].to_f.round(2)}
+  end
 
   def weekly_activity
     @metrics = []
-    (0..25).each do |i|
+    (0..52).each do |i|
       date_range = (i+1).weeks.ago..i.weeks.ago
       @metrics << { weeks_ago:   i,
                     comments:    Comment.where(   created_at: date_range ).count,
@@ -160,6 +178,7 @@ class Admin::StatsController < Admin::BaseController
     outcomes_count = g.motions.where('outcome IS NOT NULL').count
     { id: g.id,
       name: g.full_name,
+      admin_group_url: admin_group_path(g),
       discussions: g.discussions.count,
       comments: comments_count,
       motions: g.motions.count,

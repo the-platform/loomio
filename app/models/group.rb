@@ -1,6 +1,7 @@
 class Group < ActiveRecord::Base
   include ReadableUnguessableUrls
   include BetaFeatures
+  include HasTimeframe
   AVAILABLE_BETA_FEATURES = ['discussion_iframe']
 
   class MaximumMembershipsExceeded < Exception
@@ -96,6 +97,7 @@ class Group < ActiveRecord::Base
                                              parents_only }
 
   scope :alphabetically, -> { order('full_name asc') }
+  scope :in_any_cohort, -> { where('cohort_id is not null') }
 
   has_one :group_request
 
@@ -130,6 +132,12 @@ class Group < ActiveRecord::Base
            as: :invitable,
            class_name: 'Invitation'
 
+  has_many :invitations,
+           as: :invitable,
+           class_name: 'Invitation'
+ 
+  has_many :comments, through: :discussions
+
   after_initialize :set_defaults
 
   alias :users :members
@@ -138,16 +146,20 @@ class Group < ActiveRecord::Base
   has_many :admins, through: :admin_memberships, source: :user
   has_many :discussions, dependent: :destroy
   has_many :motions, through: :discussions
+  has_many :votes, through: :motions
 
   belongs_to :parent, class_name: 'Group'
   belongs_to :creator, class_name: 'User'
   belongs_to :category
   belongs_to :theme
+  belongs_to :cohort
 
   has_many :subgroups,
            -> { where(archived_at: nil).order(:name) },
            class_name: 'Group',
            foreign_key: 'parent_id'
+
+  has_many :comment_votes, through: :comments
 
   # maybe change this to just archived_subgroups
   has_many :all_subgroups,
@@ -166,11 +178,11 @@ class Group < ActiveRecord::Base
 
   has_attached_file    :cover_photo,
                        styles: { desktop: "970x200#", card: "460x94#"},
-                       default_url: '/images/default-cover-photo.png'
+                       default_url: 'default-cover-photo.png'
 
   has_attached_file    :logo,
                        styles: { card: "67x67", medium: "100x100" },
-                       default_url: '/images/default-logo-:style.png'
+                       default_url: 'default-logo-:style.png'
 
   validates_attachment :cover_photo,
     size: { in: 0..10.megabytes },
@@ -366,14 +378,6 @@ class Group < ActiveRecord::Base
     end
   end
 
-  def approaching_max_size?
-    ENV['HOSTED_BY_LOOMIO'] && org_members_count > (org_max_size * 0.8)
-  end
-
-  def max_size_reached?
-    ENV['HOSTED_BY_LOOMIO'] && org_members_count >= org_max_size
-  end
-
   def org_max_size
     if is_subgroup?
       parent.org_max_size
@@ -408,10 +412,6 @@ class Group < ActiveRecord::Base
     rescue ActiveRecord::RecordNotUnique
       retry
     end
-  end
-
-  def invitations_remaining
-    org_max_size - org_members_count
   end
 
   def has_member?(user)
@@ -475,6 +475,10 @@ class Group < ActiveRecord::Base
     else
       self
     end
+  end
+
+  def organisation_id
+    parent_id or id
   end
 
   def organisation_discussions_count

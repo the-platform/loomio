@@ -23,7 +23,7 @@ angular.module('loomioApp').factory 'DiscussionModel', (BaseModel) ->
       @recordStore.groups.find(@groupId)
 
     groupName: ->
-      @group().name
+      @group().name if @group()
 
     events: ->
       @eventsView.data()
@@ -66,8 +66,20 @@ angular.module('loomioApp').factory 'DiscussionModel', (BaseModel) ->
     reader: ->
       @recordStore.discussionReaders.initialize(id: @id)
 
+    readerNotLoaded: ->
+      !@reader().discussionId?
+
     isUnread: ->
       @unreadActivityCount() > 0
+
+    isMuted: ->
+      @reader().volume == 'mute'
+
+    isParticipating: ->
+      @reader().participating
+
+    isStarred: ->
+      @reader().starred
 
     unreadItemsCount: ->
       @itemsCount - @reader().readItemsCount

@@ -1,5 +1,5 @@
-%section#faq
-  %h1= t :"new_help.faq.title"
+%section{"role" => "region", "aria-labelledby" => "faq"}
+  %h2#faq= t :"new_help.faq.title"
   .row
     .col-sm-12
       %h3= t :"new_help.faq.confirmation_email.title"
@@ -18,12 +18,13 @@
       %p= t :"new_help.faq.functional_group_size.body"
       %h3= t :"new_help.faq.approved_membership_request.title"
       %p= t :"new_help.faq.approved_membership_request.body"
+      %h3= t :"new_help.faq.email_signature_included_in_reply_title"
+      = t :"new_help.faq.email_signature_included_in_reply_body_html"
+      = image_tag "email-signature.png", class: "img-responsive", id: "screenshot"
       %h3= t :"new_help.faq.search_for_private_group.title"
       %p= t :"new_help.faq.search_for_private_group.body"
       %h3= t :"new_help.faq.mobile_responsive.title"
       %p= t :"new_help.faq.mobile_responsive.body"
-      %h3= t :"new_help.faq.information_security.title"
-      = t :"new_help.faq.information_security.body_html"
       %h3= t :"new_help.faq.account_reactivation.title"
       %p= t :"new_help.faq.account_reactivation.body_html"
       %h3= t :"new_help.faq.restore_group.title"

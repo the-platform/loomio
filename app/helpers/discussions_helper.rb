@@ -1,7 +1,4 @@
 module DiscussionsHelper
-  include Twitter::Extractor
-  include Twitter::Autolink
-
   def filter_discussion_events(activity)
     last_item = nil
     ignored_event_kinds = %w[motion_closing_soon user_mentioned comment_liked]
@@ -50,10 +47,6 @@ module DiscussionsHelper
     when :new_comment then event.eventable
     #else                   DiscussionItem.new event
     end
-  end
-
-  def add_mention_links(comment)
-    auto_link_usernames_or_lists(comment, :username_url_base => "#", :username_include_symbol => true)
   end
 
   def css_for_markdown_link(target, setting)
@@ -127,5 +120,35 @@ module DiscussionsHelper
 
   def privacy_icon(discussion)
     discussion.private? ? "lock" : "globe"
+  end
+
+  def display_proposal_activity_icons_for_print(vote)
+    case vote.position
+    when 'abstain'
+      'hand-abstain-18.png'
+    when 'block'
+      'hand-block-18.png'
+    when 'no'
+      'hand-no-18.png'
+    when 'yes'
+      'hand-yes-18.png'
+    end
+  end
+
+  def display_discussion_activity_icons_for_print(item)
+    case item.icon
+    when 'discussion-icon'
+      'discussion-18.png'
+    when 'position-abstain-icon'
+      'hand-abstain-18.png'
+    when 'position-block-icon'
+      'hand-block-18.png'
+    when 'position-no-icon'
+      'hand-no-18.png'
+    when 'position-yes-icon'
+      'hand-yes-18.png'
+    when 'proposal-icon'
+      'pie-18.png'
+    end
   end
 end

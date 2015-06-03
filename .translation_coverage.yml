@@ -1,11 +1,11 @@
 an:
   frontpage: 52
   help docs: 8
-  main: 89
+  main: 88
 ar:
   frontpage: 52
   help docs: 7
-  main: 50
+  main: 49
 be-BY:
   frontpage: 58
   help docs: 10
@@ -13,7 +13,7 @@ be-BY:
 bg-BG:
   frontpage: 9
   help docs: 2
-  main: 42
+  main: 41
 ca:
   frontpage: 49
   help docs: 7
@@ -23,9 +23,9 @@ cmn:
   help docs: 1
   main: 30
 cs:
-  frontpage: 56
-  help docs: 7
-  main: 78
+  frontpage: 76
+  help docs: 43
+  main: 80
 da:
   frontpage: 52
   help docs: 8
@@ -41,10 +41,10 @@ el:
 eo:
   frontpage: 52
   help docs: 8
-  main: 87
+  main: 86
 es:
-  frontpage: 58
-  help docs: 59
+  frontpage: 95
+  help docs: 75
   main: 99
 fa-IR:
   frontpage: 52
@@ -56,12 +56,12 @@ fi:
   main: 6
 fr:
   frontpage: 58
-  help docs: 26
+  help docs: 30
   main: 98
 ga-IE:
-  frontpage: 26
-  help docs: 4
-  main: 44
+  frontpage: 44
+  help docs: 6
+  main: 54
 gl:
   frontpage: 29
   help docs: 8
@@ -69,7 +69,7 @@ gl:
 he:
   frontpage: 53
   help docs: 8
-  main: 65
+  main: 64
 hi:
   frontpage: 0
   help docs: 0
@@ -79,7 +79,7 @@ hr:
   help docs: 14
   main: 46
 hu:
-  frontpage: 58
+  frontpage: 61
   help docs: 74
   main: 97
 id:
@@ -87,7 +87,7 @@ id:
   help docs: 2
   main: 54
 it:
-  frontpage: 58
+  frontpage: 60
   help docs: 8
   main: 89
 it-CH:
@@ -97,15 +97,15 @@ it-CH:
 ja:
   frontpage: 44
   help docs: 4
-  main: 63
+  main: 62
 km:
   frontpage: 7
   help docs: 2
-  main: 50
+  main: 49
 ko:
   frontpage: 52
   help docs: 3
-  main: 57
+  main: 56
 lv:
   frontpage: 0
   help docs: 0
@@ -129,7 +129,7 @@ ml-IN:
 nl-NL:
   frontpage: 58
   help docs: 47
-  main: 93
+  main: 92
 pl:
   frontpage: 52
   help docs: 1
@@ -144,20 +144,20 @@ pt-PT:
   main: 9
 ro:
   frontpage: 52
-  help docs: 8
-  main: 89
+  help docs: 11
+  main: 100
 ru:
   frontpage: 58
   help docs: 8
-  main: 64
+  main: 63
 sk:
   frontpage: 52
   help docs: 8
-  main: 89
+  main: 88
 sl:
   frontpage: 58
   help docs: 10
-  main: 92
+  main: 91
 sr:
   frontpage: 58
   help docs: 10
@@ -177,11 +177,11 @@ te:
 tr:
   frontpage: 52
   help docs: 8
-  main: 89
+  main: 88
 uk:
   frontpage: 58
   help docs: 8
-  main: 76
+  main: 75
 ur:
   frontpage: 0
   help docs: 0

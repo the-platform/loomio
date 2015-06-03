@@ -11,6 +11,9 @@ angular.module('loomioApp').factory 'UserModel', (BaseModel) ->
     setupViews: ->
       @membershipsView = @recordStore.memberships.belongingTo(userId: @id)
       @notificationsView = @recordStore.notifications.belongingTo(userId: @id)
+      @groupsView = @recordStore.groups.belongingTo(id: { $in: @groupIds() })
+      @parentGroupsView = @recordStore.groups.collection.addDynamicView()
+      @parentGroupsView.applyFind(parentId: {$eq: null}).applyFind(id: {$in: @groupIds()})
 
     groupIds: ->
       _.map(@memberships(), 'groupId')
@@ -25,7 +28,10 @@ angular.module('loomioApp').factory 'UserModel', (BaseModel) ->
       @notificationsView.data()
 
     groups: ->
-      @recordStore.groups.where(id: {'$in': @groupIds()})
+      @recordStore.groups.find(id: { $in: @groupIds() })
+
+    parentGroups: ->
+      @parentGroupsView.data()
 
     canEditComment: (comment) ->
       @isAuthorOf(comment) && comment.group().membersCanEditComments
@@ -50,6 +56,11 @@ angular.module('loomioApp').factory 'UserModel', (BaseModel) ->
     canCloseOrExtendProposal: (proposal) ->
       proposal.isActive() and
       (@isAdminOf(proposal.group()) or @isAuthorOf(proposal))
+
+    canSeePrivateContentFor: (group) ->
+      group.visibleTo == 'public' or
+      @isMemberOf(group) or
+      (group.visibleTo == 'parent_members' and @isMemberOf(group.parent()))
 
     isAuthorOf: (object) ->
       @id == object.authorId

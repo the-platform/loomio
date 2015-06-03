@@ -545,6 +545,7 @@ nl-NL:
   change_proposal_close_date: Verander sluitingsdatum
   change_proposal_close_date_header: "Verander de sluitingsdatum voor voorstel '%{which}'"
   proposal: Voorstel
+  proposals: Voorstellen
   proposal_close_date_error: Geef een sluitingsdatum in de toekomst op
   proposal_closing_when: "Sluit over %{when}"
   proposal_closed_when: "%{when} geleden gesloten"
@@ -684,8 +685,6 @@ nl-NL:
   invitation:
     alternate: "Of deel deze link waarmee iedereen een aanvraag in kan dienen om lid te worden:"
     by_email: Uitnodiging via e-mail
-    no_invitations_left: "Sorry, je hebt geen uitnodigingen meer over"
-    no_invitations_left_get_more: "Stuur een e-mail naar contact@loomio.org waarna we zullen kijken hoe we je kunnen helpen"
     invitation_not_found: Kon geen uitnodiging vinden met die token. Vraag om een nieuwe uitnodiging van de verzender.
     invitation_cancelled: Deze uitnodiging is geannuleerd. Neem contact op met de verzender van de uitnodiging als je denkt dat dit een vergissing is.
     invitation_already_used: Deze uitnodiging is al gebruikt. Log in om naar je groep te gaan.
@@ -1078,7 +1077,6 @@ nl-NL:
     online_community: Online gemeenschap
     religious_group: Religieus/spiritueel
     event: Gebeurtenis
-    open_source_software: Open source software
     political_initiative: Politiek initiatief
     social_enterprise: Sociale onderneming
     social_justice: Sociaal juridisch

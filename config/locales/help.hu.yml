@@ -89,6 +89,8 @@ hu:
         title_html: A Loomio Közösség
       loomio_development:
         title_html: Lépést tartva a Loomio fejlesztéssel
+      faq:
+        title_html: "Gyakran feltett kérdések:"
     getting_started:
       title: Kezdjük
       intro: "Amikor először kerülcs kapcsolatba a Loomioval, több út is kínálkozik a csatlakozásra.\nIme néhány információ minden egyes belépési pontról:\n"
@@ -311,7 +313,6 @@ hu:
       title: Fordítás
     security:
       title: Titkosság és biztonság
-      body_html: "<p>Megnézheted  <a href=\"https://www.loomio.org/privacy\">Adatvédelmi irányelveinket</a></p>\n<p>Ha speciális biztonsági aggályaid vannak, azt ajánljuk, hogy telepítsd a Loomio saját verzióját.\nTovábbiakat találsz a saját verzió üzemeltetéséről a wikiben: <a href=\"https://github.com/loomio/loomio/wiki\">github.com/loomio/loomio/wiki</a>.</p>\n"
     contributing:
       title: Hozzájárulás a Loomiohoz
       body:
@@ -335,6 +336,7 @@ hu:
       twitter_html: Loomio a Twitteren
       code_climate_html: Loomio Code Climate-je (automatikus kód ellenőrzője)
     faq:
+      title: "Gyakran feltett kérdések:"
       confirmation_email:
         title: Hol a visszaigazoló emailem?
         body: "Ha nem kapsz visszaigazoló emailt a csoport feliratkozásról, akkor szükséged lehet a kéretlen levelek vagy levélszemét mappád ellenőrzésére - néha itt kötnek ki ezek a levelek."

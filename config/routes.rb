@@ -16,9 +16,9 @@ Loomio::Application.routes.draw do
 
   slug_regex = /[a-z0-9\-\_]*/i
 
-  ActiveAdmin.routes(self)
 
   namespace :admin do
+    get 'url_info' => 'base#url_info'
     namespace :stats do
       get :group_activity
       get :daily_activity
@@ -26,8 +26,16 @@ Loomio::Application.routes.draw do
       get :retention
       get :events
       get :weekly_activity
+      get :cohorts
+      get :aaarrr
     end
+    #get :test
+    #resources :groups, only: :show
+    #get 'group/:id'
+    #get 'group/:id' => 'cohort_reports#group'
   end
+
+  ActiveAdmin.routes(self)
 
   namespace :api, path: '/api/v1', defaults: {format: :json} do
     resources :groups, only: [:show, :create, :update] do
@@ -45,10 +53,9 @@ Loomio::Application.routes.draw do
     resources :events, only: :index
 
     resources :discussions, only: [:show, :index, :create, :update, :destroy] do
-      get :inbox_by_date, on: :collection
-      get :inbox_by_organization, on: :collection
-      get :inbox_by_group, on: :collection
+      get :dashboard, on: :collection
     end
+
     resources :discussion_readers, only: :update do
       patch :mark_as_read, on: :member
     end
@@ -85,7 +92,6 @@ Loomio::Application.routes.draw do
       get :current
       get :unauthorized
     end
-    resources :users, only: :update
     devise_scope :user do
       resources :sessions, only: [:create, :destroy]
     end
@@ -138,6 +144,7 @@ Loomio::Application.routes.draw do
   post 'start_group' => 'start_group#create'
   resources :groups, path: 'g', only: [:create, :edit, :update] do
     member do
+      get :export
       post :set_volume
       post :join
       post :add_members
@@ -230,6 +237,7 @@ Loomio::Application.routes.draw do
       post :show_description_history
       get :new_proposal
       post :move
+      get :print
     end
   end
 
@@ -316,9 +324,11 @@ Loomio::Application.routes.draw do
   get '/contributions/thanks' => redirect('/crowd')
   get '/contributions/callback' => redirect('/crowd')
   get '/crowd' => redirect('https://love.loomio.org/')
-  get '/groups' => redirect('/explore')
 
   get '/dashboard', to: 'dashboard#show', as: 'dashboard'
+
+  # this is a dumb thing
+  get '/groups', to: 'dashboard#show'
 
   constraints(MainDomainConstraint) do
     scope controller: 'pages' do

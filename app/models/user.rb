@@ -5,9 +5,6 @@ class User < ActiveRecord::Base
   require 'net/http'
   require 'digest/md5'
 
-  validates_inclusion_of :dashboard_sort,   in: %w[sort_by_group sort_by_date]
-  validates_inclusion_of :dashboard_filter, in: %w[show_all show_unread show_proposals]
-
   AVATAR_KINDS = %w[initials uploaded gravatar]
   LARGE_IMAGE = 170
   MED_LARGE_IMAGE = 70
@@ -19,6 +16,7 @@ class User < ActiveRecord::Base
   attr_accessor :honeypot
 
   validates :email, presence: true, uniqueness: true, email: true
+  #validates :name, presence: true
   validates_inclusion_of :uses_markdown, in: [true,false]
 
   has_attached_file :uploaded_avatar,
@@ -37,7 +35,7 @@ class User < ActiveRecord::Base
 
   validates_uniqueness_of :username, allow_blank: true
   validates_length_of :username, maximum: 30, allow_blank: true
-  validates_format_of :username, without: /\s/, message: I18n.t(:'error.username_cannot_contain_whitespace')
+  validates_format_of :username, with: /\A[a-z0-9]*\z/, message: I18n.t(:'error.username_must_be_alphanumeric')
 
   validates_length_of :password, minimum: 8, :allow_nil => true
   validates :password, nontrivial_password: true, :allow_nil => true
@@ -107,10 +105,10 @@ class User < ActiveRecord::Base
           class_name: 'UserDeactivationResponse',
           dependent: :destroy
 
+  before_validation :generate_username
   before_save :set_avatar_initials,
               :ensure_unsubscribe_token,
-              :ensure_email_api_key,
-              :generate_username
+              :ensure_email_api_key
 
   before_create :set_default_avatar_kind
 
@@ -330,23 +328,7 @@ class User < ActiveRecord::Base
   end
 
   def generate_username
-    return if name.blank? or username.present?
-
-    if name.include? '@'
-      #email used in place of name
-      email_str = email.split("@").first
-      new_username = email_str.parameterize.gsub(/[^a-z0-9]/, "")
-    else
-      new_username = name.parameterize.gsub(/[^a-z0-9]/, "")
-    end
-    username_tmp = new_username.dup.slice(0,18)
-    num = 1
-    while(User.where("username = ?", username_tmp).count > 0)
-      break if username == username_tmp
-      username_tmp = "#{new_username}#{num}"
-      num+=1
-    end
-    self.username = username_tmp
+    self.username ||= UsernameGenerator.new(self).generate
   end
 
   def in_same_group_as?(other_user)

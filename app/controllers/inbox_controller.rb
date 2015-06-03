@@ -1,5 +1,6 @@
 class InboxController < BaseController
   include DiscussionIndexCacheHelper
+  after_filter :clear_discussion_index_caches, only: :index
 
   def index
     load_inbox

@@ -212,6 +212,7 @@ pt-BR:
     new_vote: "%{position} na proposição"
     new_comment: comentou na discussão
     comment_liked: curtiu seu comentário na discussão
+    comment_replied_to: respondeu ao seu comentário em
     user_mentioned: mencionou você em um comentário em
     membership_requested: requisitou inclusão de membro para
     membership_request_approved: aprovou seu pedido de entrada
@@ -439,8 +440,6 @@ pt-BR:
   edit_group_description: Editar descrição do grupo
   group_subscription: Taxa de inscrição do grupo
   groups:
-    max_size_warning_html: "Seu grupo está ficando grande e atingirá o limite de %{size} membros em breve. Por favor, <a href='%{link}'>entre em contato</a> para aumentar o limite."
-    max_size_reached_html: "Seu grupo atingiu o limite de %{size} membros. <a href='%{link}'>Entre em contato</a> para adicionar mais pessoas ao grupo."
     follow:
       click_to_follow: Clicar para seguir o grupo
       click_to_unfollow: Clicar para deixar de seguir o grupo
@@ -545,6 +544,7 @@ pt-BR:
       log_in_html: "Se você é um membro, <a href='%{href}'>entre</a> para ver todas as discussões privadas."
   discussion_context:
     started_html: "Iniciado %{when} atrás por <a href='%{link}' class='%{link_class}'>%{who}</a>"
+    started_print: "Iniciada %{when} por %{who}"
     last_edited_html: "Última edição %{when} atrás por <a href='%{link}' class='%{link_class}'>%{who}</a>"
     see_revision_history: Ver o histórico de revisões
     see_history: Ver histórico
@@ -574,6 +574,7 @@ pt-BR:
   move_discussion_where: Para onde você gostaria de mover esta discussão?
   delete_discussion: Apagar discussão
   confirm_delete_discussion: Tem certeza que quer apagar permanentemente esta discussão?
+  print_tooltip_info: Imprimir
   new_proposal: Nova Proposição
   edit_proposal: Editar Proposta
   close_proposal: Encerrar proposição
@@ -581,10 +582,13 @@ pt-BR:
   change_proposal_close_date: Mudar data de encerramento
   change_proposal_close_date_header: "Mudar data de encerramento para a proposição '%{which}'"
   proposal: Proposição
+  proposals: Propostas
+  closed_at: Fechou em
   proposal_close_date_error: "Por favor, defina uma data de encerramento futura"
   proposal_closing_when: "Encerra em %{when}"
   proposal_closed_when: "Encerrado há %{when}"
   proposed_when_by_who: "Proposto por %{who} há %{when}"
+  proposed_by_who_on: "Proposta por: %{who}, %{when}"
   engagement_on_open_proposal: "%{percent}%% dos membros declararam sua posição (%{numerator}/%{denominator})"
   engagement_on_closed_proposal: "%{percent}%% dos membros declararam sua posição (%{numerator}/%{denominator})"
   state_your_position: Declare sua posição
@@ -731,8 +735,6 @@ pt-BR:
   invitation:
     alternate: "Ou compartilhe esse link e qualquer um poderá solicitar entrada:"
     by_email: Convidar por e-mail
-    no_invitations_left: "Desculpe-me, mas você não tem mais nenhum convite"
-    no_invitations_left_get_more: "Por favor escreva para contact@loomio.org e veremos o que podemos fazer para te ajudar"
     invitation_not_found: Não localizamos um convite com este código. Por favor peça um novo convite a quem lhe enviou da outra vez.
     invitation_cancelled: Este convite foi cancelado. Por favor entre em contato com quem enviou o convite se você acha que aconteceu por engano.
     invitation_already_used: Esse convite já foi utilizado. Favor fazer login para continuar para seu grupo.
@@ -971,6 +973,7 @@ pt-BR:
   about_loomio: Sobre o Loomio
   ago: "há %{quantity_of_time}"
   approve: Aprovar
+  attachments: "Anexos:"
   author: Autor(a)
   back: Voltar
   cancel: Cancelar
@@ -1143,7 +1146,7 @@ pt-BR:
     online_community: Comunidade online
     religious_group: Religioso/espiritual
     event: Evento
-    open_source_software: Programa de código aberto
+    open_source_software: Programa gratuito e código aberto
     political_initiative: Iniciativa política
     social_enterprise: Empreendimento social
     social_justice: Justiça social

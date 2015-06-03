@@ -11,13 +11,13 @@ en:
     privacy:
       private: 'Private'
       public: 'Public'
-      organization: 'Organization'
+      organisation: 'Organisation'
     selected: 'Selected'
     date_range:
       today: 'Today'
       yesterday: 'Yesterday'
-      this_week: 'This Week'
-      this_month: 'This Month'
+      thisweek: 'This Week'
+      thismonth: 'This Month'
       older: 'Older'
     action:
       save: 'Save'
@@ -85,13 +85,17 @@ en:
     submit_button:
       label: 'Post'
 
-
   navbar:
-    dashboard: 'Go to dashboard'
+    home: 'Home'
+    unread: 'Unread'
+    groups: 'Groups'
+    home_title: 'Go to dashboard'
+    unread_title: 'View unread activity'
+    groups_title: 'View your groups'
     start_thread: 'Start a new thread'
-    notifications: 'Open notifications panel'
+    notifications: 'Notifications panel'
     user_options:
-      label: 'Open user options menu'
+      label: 'User options menu'
       contact_us: 'Contact us'
       new_thread: 'New thread'
       new_group: 'New group'
@@ -99,7 +103,7 @@ en:
       help: 'Help'
     search:
       close: 'Close search panel'
-      placeholder: 'Search for groups or threads'
+      placeholder: 'Search'
       loading: 'Loading results...'
       discussions: 'Threads'
       proposals: 'Proposals'
@@ -129,6 +133,7 @@ en:
     no_statement: No statement.
     change_your_vote: Change your vote.
     have_your_say: Have your say
+    positions: Positions
     submitted_your_vote: Submitted your vote.
     i_agree: 'I agree'
     i_agree_details: 'I support this and want it to go ahead.'
@@ -201,7 +206,6 @@ en:
     started_by: 'Started by <strong>{{name}}</strong>'
     no_votes_yet: 'Nobody has voted on this proposal yet.'
     only_voter_is_you: 'No other members have voted yet.'
-    positions: 'Positions'
     extend_proposal: 'Change closing time'
     edit_proposal: 'Edit proposal'
     close_proposal: 'Close proposal'
@@ -214,10 +218,21 @@ en:
   proposal_position_block: 'Block'
 
   group_page:
+    thread_list:
+      empty:
+        no_discussions_in_group: "This group does not have any threads yet."
+        no_discussions_matching_filters_html: "There are no threads matching these filters. <a href='%{link}'>Clear filters</a>."
+        no_public_discussions: "There are no public threads in this group."
+        discussions_are_private: "All threads in this group are private."
+        request_membership: "To see private threads, "
+        request_membership_link: "request to join the group"
+        membership_is_invitation_only: "To join this group you need to be invited by a member."
+        membership_is_invitation_by_admin_only: "To join this group you need to be invited by a coordinator."
+
     messages:
       privacy:
         members: 'This group is now visible only to members'
-        parent_members: 'This group is now visible only to members of your organization'
+        parent_members: 'This group is now visible only to members of your organisation'
         public: 'This group is now visible to the public'
       leave_group_success: 'You have successfully left this group'
       deactivate_group_success: 'You have successfully deactivated this group'
@@ -225,10 +240,14 @@ en:
     header:
       aria_label: 'Group page header'
     description: 'Description'
+    description_placeholder: 'Use this place to describe the purpose of the group so your members know why they are here.'
     discussions: 'Threads'
+    discussions_placeholder: 'A thread is where everyone can discuss a topic and make decisions together.'
     members: 'Members'
+    members_placeholder: 'You''re the only one here: invite some people to join you!'
     member_options: Member options
     subgroups: 'Subgroups'
+    subgroups_placeholder: 'Subgroups let you break the group up into different teams.'
     invite_people: 'Invite people'
     visibility_label: 'Visibility'
     options_label: 'Options'
@@ -279,7 +298,7 @@ en:
       label: 'Privacy'
       visible_to_members: 'Who can find this group?'
       public_visibility: 'Anyone - list the group publicly'
-      organization_visibility: "Organization - unlisted to the public, but visible to members of {{parentGroupName}}"
+      organisation_visibility: "Organisation - unlisted to the public, but visible to members of {{parentGroupName}}"
       private_visibility: 'Members only - the group will not be listed'
       membership_granted_upon: 'How do people join?'
       membership_by_request: 'Open - anyone can join the group'
@@ -334,28 +353,33 @@ en:
     aria_label: 'Dashboard'
     options:
       aria_label: 'Dashboard filtering options'
-    no_threads: No threads to show.
+    no_threads:
+      show_all: You don't have any recent threads.
+      show_participating: You haven't participated in any threads recently.
+      show_starred: You don't have any starred threads.
+      show_proposals: There are no proposals currently active.
+      show_muted: You don't have any muted threads.
     view_recent: View all recent threads?
     load_more: Load more threads
+    mark_as_read: Mark as read
     filtering:
+      filter_threads: Filter Threads
       dropdown_heading: Filter dashboard
       all: Recent Threads
       all_aria_label: Currently showing recent threads
       all_description: View recent threads
-      unread: Unread Threads
-      unread_aria_label: Currently showing unread threads
-      unread_description: View only threads you have not read yet
+      starred: Starred Threads
+      starred_aria_label: Currently showing threads I've marked as important
+      starred_description: View only threads you have marked as important
+      participating: Participating threads
+      participating_aria_label: Currently showing threads I've participated
+      participating_description: View only threads you have participated in
       proposals: Proposals
       proposals_aria_label: Currently showing threads with active proposals
       proposals_description: View only threads with active proposals
-    sorting:
-      dropdown_heading: Sort threads
-      group: By Group
-      group_aria_label: Currently sorting threads by group
-      group_description: Sort threads by group.
-      date: By Date
-      date_aria_label: Currently sorting threads by date
-      date_description: Sort threads by date.
+      muted: Muted
+      muted_aria_label: Current showing muted threads
+      muted_description: View only threads which have been muted
     aria_thread:
       title: 'Thread title: {{title}}.'
       unread: '{{count}} unread items.'
@@ -363,11 +387,19 @@ en:
       you_voted: 'You voted: {{position}}.'
     threads_from:
       group: 'Threads from'
-      today: 'Threads from today'
-      yesterday: 'Threads from yesterday'
-      this_week: 'Threads from this week'
-      this_month: 'Threads from this month'
-      older: 'Threads older than a month'
+      today: 'Today'
+      yesterday: 'Yesterday'
+      thisweek: 'This week'
+      thismonth: 'This month'
+      older: 'Older than a month'
+
+  inbox_page:
+    no_threads: Woohoo! You've read all the threads in your inbox.
+    unread_threads: Unread Threads
+    view_more: View More
+
+  groups_page:
+    page_header: Your groups
 
   discussion:
     activity: 'Activity'
@@ -405,10 +437,6 @@ en:
     attachment_display:
       aria_label: 'File attached:'
       image_alt: 'Attached image'
-    new_comment:
-      aria_label: 'Comment by'
-    new_motion:
-      aria_label: 'started a proposal:'
 
   delete_comment_dialog:
     title: 'Delete comment'
@@ -423,14 +451,10 @@ en:
     in_reply_to: '<strong>{{author}}</strong> in reply to <strong>{{recipient}}</strong>'
 
   new_vote_item:
-    agree: '<strong>{{name}}</strong> agreed.'
-    abstain: '<strong>{{name}}</strong> abstained.'
-    disagree: '<strong>{{name}}</strong> disagreed.'
-    block: '<strong>{{name}}</strong> blocked.'
-    agree_and_why: '<strong>{{name}}</strong> agreed:'
-    abstain_and_why: '<strong>{{name}}</strong> abstained:'
-    disagree_and_why: '<strong>{{name}}</strong> disagreed:'
-    block_and_why: '<strong>{{name}}</strong> blocked:'
+    agree: '<strong>{{name}}</strong> agreed'
+    abstain: '<strong>{{name}}</strong> abstained'
+    disagree: '<strong>{{name}}</strong> disagreed'
+    block: '<strong>{{name}}</strong> blocked'
 
   new_proposal_item:
     author_created_proposal: '<strong>{{name}}</strong> created a proposal:'

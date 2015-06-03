@@ -49,9 +49,28 @@ class Queries::VisibleDiscussions < Delegator
     self
   end
 
+  def participating
+    join_to_discussion_readers
+    @relation = @relation.where('dv.participating = true')
+    self
+  end
+
+  def starred
+    join_to_discussion_readers
+    @relation = @relation.where('dv.starred = true')
+    self
+  end
+
   def unread
     join_to_discussion_readers
     @relation = @relation.where('dv.last_read_at IS NULL OR (dv.last_read_at < discussions.last_activity_at)')
+    self
+  end
+
+  def muted
+    join_to_discussion_readers && join_to_memberships
+    @relation = @relation.where('(dv.volume = :mute) OR (dv.volume IS NULL AND m.volume = :mute) ', 
+                                {mute: DiscussionReader.volumes[:mute]})
     self
   end
 
@@ -62,6 +81,17 @@ class Queries::VisibleDiscussions < Delegator
     self
   end
 
+  def sorted_by_latest_activity
+    @relation = @relation.order(last_activity_at: :desc)
+    self
+  end
+
+  def sorted_by_latest_motions
+    @relation = @relation.joined_to_current_motion
+                         .preload(:current_motion, {group: :parent})
+                         .order('motions.closing_at ASC, last_activity_at DESC')
+    self
+  end
 
   def self.apply_privacy_sql(user: nil, group_ids: [], relation: nil)
     user_group_ids = user.nil? ? [] : user.cached_group_ids

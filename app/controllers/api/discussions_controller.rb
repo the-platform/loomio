@@ -2,23 +2,13 @@ class API::DiscussionsController < API::RestfulController
   load_and_authorize_resource only: [:show, :mark_as_read, :set_volume]
   load_resource only: [:create, :update]
 
-  def inbox_by_date
-    load_and_authorize_group if params[:group_id]
-    @discussions = page_collection inbox_threads
-    respond_with_discussions
-  end
-
-  def inbox_by_organization
-    @discussions = grouped inbox_threads.group_by(&:organization_id)
-    respond_with_discussions
-  end
-
-  def inbox_by_group
-    @discussions = grouped inbox_threads.group_by(&:group_id)
+  def dashboard
+    instantiate_collection { |collection| filter_collection collection }
     respond_with_discussions
   end
 
   def index
+    load_and_authorize :group if params[:group_id] || params[:group_key]
     instantiate_collection
     respond_with_discussions
   end
@@ -45,47 +35,25 @@ class API::DiscussionsController < API::RestfulController
            root: 'discussion_wrappers'
   end
 
-  def discussion_params
-    params.require(:discussion).permit([:title,
-                                        :description,
-                                        :uses_markdown,
-                                        :group_id,
-                                        :private,
-                                        :iframe_src])
-  end
-
   def visible_records
-    load_and_authorize_group
-    groups = if @group
-               VisibleGroupsQuery.expand(group: @group, user: current_user)
-             else
-               current_user.groups
-             end
-    Queries::VisibleDiscussions.new(user: current_user, groups: groups).order(last_activity_at: :desc)
+    Queries::VisibleDiscussions.new(user: current_user, groups: visible_groups).sorted_by_latest_activity
   end
 
   private
-  def filter_discussions(discussions, filter)
+
+  def visible_groups
+    Array(@group).presence || current_user.groups
+  end
+
+  def filter_collection(collection, filter = params[:filter])
     case filter
-    when 'show_unread'    then discussions.unread
-    when 'show_proposals' then discussions.with_active_motions
-    else                       discussions
+    when 'show_proposals'     then collection.not_muted.with_active_motions
+    when 'show_participating' then collection.not_muted.participating
+    when 'show_starred'       then collection.not_muted.starred
+    when 'show_muted'         then collection.muted
+    when 'show_unread'        then collection.not_muted.unread
+    else                           collection.not_muted
     end
-  end
-
-  def inbox_threads
-    discussions = Queries::VisibleDiscussions.new(groups: current_user.groups,
-                                                  user: current_user) 
-    discussions = filter_discussions(discussions, params[:filter])
-    discussions.not_muted.
-                where('last_activity_at > ?', params[:from_date] || 3.months.ago).
-                joined_to_current_motion.
-                preload(:current_motion, {group: :parent}).
-                order('motions.closing_at ASC, last_activity_at DESC')
-  end
-
-  def grouped(discussions)
-    discussions.map { |g, discussions| discussions.first(Integer(params[:per] || 5)) }.flatten
   end
 
   def discussion_reader

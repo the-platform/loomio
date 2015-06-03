@@ -6,14 +6,20 @@ module.exports = class DiscussionPage
     browser.get('http://localhost:8000/angular_support/setup_for_vote_on_proposal')
 
   addComment: (body) ->
-    element(By.css('#comment-field')).sendKeys('hi this is my comment')
+    enterCommentText(body)
+    submitComment()
+
+  enterCommentText: (body) ->
+    element(By.css('#comment-field')).sendKeys(body or 'I am a comment')
+
+  submitComment: ->
     element(By.css('#post-comment-btn')).click()
 
   openNotificationDropdown: ->
     element(By.css('.dropdown-toggle')).click()
 
   notificationDropdown: ->
-    element(By.css('.lmo-navbar-btn--notifications'))
+    element(By.css('.lmo-navbar__btn--notifications'))
 
   mostRecentComment: ->
     element.all(By.css('.thread-item--comment')).last()
@@ -110,3 +116,8 @@ module.exports = class DiscussionPage
   firstCollpasedProposal: ->
     element.all(By.css('a.proposal-collapsed')).first()
 
+  mentionList: ->
+    element(By.css('mentio-menu')).first()
+    
+  firstMentionOption: ->
+    @mentionList().element('li').first()

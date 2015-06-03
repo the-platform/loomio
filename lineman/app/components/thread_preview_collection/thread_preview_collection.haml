@@ -1,0 +1,34 @@
+.thread-previews
+  .thread-preview{ng-repeat: 'thread in query.threads() | limitTo: limit'}
+    .thread-preview__star
+      %star_toggle{thread: 'thread'}
+    .thread-preview__actions
+      %button.btn.btn-default.btn-sm.thread-preview__mark-as-read{ng-click: 'thread.reader().markAsRead()', ng-class: '{disabled: !thread.isUnread()}'}>
+        %i.fa.fa-check>
+        %span{translate: 'dashboard_page.mark_as_read'}
+      %button.btn.btn-default.btn-sm.thread-preview__mute{ng-click: 'thread.reader().changeVolume("mute")', ng-class: '{disabled: thread.isMuted()}'}>
+        %i.fa.fa-volume-off
+        %i.fa.fa-times>
+        %span{translate: 'volume_levels.mute'}
+
+    %a.selector-list-item-link{href: '/d/{{ thread.key }}'}
+      .sr-only
+        %span{translate: 'dashboard_page.aria_thread.title', translate-value-title: '{{ thread.title }}'}
+        %span{ng-if: 'thread.isUnread()', translate: 'dashboard_page.aria_thread.unread', translate-value-count: '{{ thread.unreadItemsCount() }}'}
+        %span{ng-if: 'thread.activeProposal()', translate: 'dashboard_page.aria_thread.current_proposal', translate-value-name: '{{ thread.activeProposal().name }}'}
+        %span{ng-if: 'thread.activeProposal() && lastVoteByCurrentUser(thread)', translate: 'dashboard_page.aria_thread.you_voted', translate-value-position: ' {{lastVoteByCurrentUser(thread).position}} '}
+      .screen-only{aria-hidden: 'true'}
+        .thread-preview__thread-header
+          .thread-preview__thread-title{ng-class: "{'is-unread': thread.isUnread() }"}
+            {{thread.title}}
+            %span.thread-preview__unread-count{ng-if: 'thread.isUnread()'}
+              ({{thread.unreadItemsCount()}})
+        .thread-preview__thread-info
+          %span.thread-preview-proposal-info{ng-if: 'thread.activeProposal()'}
+            %tiny_proposal_pie_chart.pull-left.thread-preview__pie-chart{proposal: 'thread.activeProposal()', ng-if: 'thread.activeProposal()'}
+            %span.nowrap.thread-preview__proposal-name> {{ thread.activeProposal().name }}
+            %span{ng-if: 'thread.activeProposal().closingSoon()'} ·
+            %closing_in.thread-preview__proposal-closing-at{ng-if: 'thread.activeProposal().closingSoon()', time: 'thread.activeProposal().closingAt'}>
+        .thread-preview__group-name
+          {{ thread.group().fullName() }} ·
+          %smart_time{time: 'thread.lastActivityAt'}>

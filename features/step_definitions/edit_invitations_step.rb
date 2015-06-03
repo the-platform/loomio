@@ -6,16 +6,6 @@ Then(/^I should see the pending invitations for the group$/) do
   page.should have_css(".pending-invitations")
 end
 
-
-Then(/^I should see the no invitations page$/) do
-  page.should have_content I18n.t(:"invitation.no_invitations_left")
-end
-
-Given(/^the group has run out of invites$/) do
-  @group.max_size = 2
-  @group.save!
-end
-
 When(/^I click 'Invite People'$/) do
   click_on 'Invite people'
 end
@@ -37,7 +27,6 @@ Then(/^the flash notice should inform me of (\d+) invitations being sent$/) do |
 end
 
 Given(/^there is a pending invitation to join the group$/) do
-  @group.pending_invitations.first.destroy
   @invitation = InvitationService.create_invite_to_join_group(group: @group,
                                                               inviter: @user,
                                                               recipient_email: 'jim@jimmy.com')

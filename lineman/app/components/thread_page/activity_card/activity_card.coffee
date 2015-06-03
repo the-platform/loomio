@@ -4,58 +4,25 @@ angular.module('loomioApp').directive 'activityCard', ->
   templateUrl: 'generated/components/thread_page/activity_card/activity_card.html'
   replace: true
   controller: ($scope, $rootScope, $location, $document, $timeout, Records, LoadingService) ->
-    reader = $scope.discussion.reader()
 
     $scope.pageSize = 30
     $scope.firstLoadedSequenceId = 0
     $scope.lastLoadedSequenceId = 0
-    $scope.newActivitySequenceId = reader.lastReadSequenceId + 1
+    $scope.lastReadSequenceId = $scope.discussion.reader().lastReadSequenceId
+    $scope.hasNewActivity = $scope.discussion.isUnread()
     visibleSequenceIds = []
-    rollback = 2
 
     $scope.init = ->
       $scope.discussion.markAsRead(0)
 
-      $scope.firstLoadedSequenceId = focusSequenceId() - rollback
+      $scope.loadEventsForwards($scope.initialLoadSequenceId()).then ->
+        $rootScope.$broadcast 'threadPageEventsLoaded'
 
-      if ($scope.firstLoadedSequenceId + $scope.pageSize - 1) > $scope.discussion.lastSequenceId
-        $scope.firstLoadedSequenceId = $scope.discussion.lastSequenceId - $scope.pageSize + 1
-
-      $scope.loadEventsForwards($scope.firstLoadedSequenceId - 1).then (events) ->
-        $timeout ->
-          elem = document.querySelector(focusSelector())
-          console.log 'scrolling to ', focusSelector(), elem
-          angular.element().focus(elem)
-          $document.scrollToElement(elem, 100)
-
-    focusSelector = ->
-      if _.isFinite(_.parseInt($location.hash()))
-        # startPosition is manually specified in hash
-        "##{$location.hash()}"
-      else if $location.hash() == 'proposal'
-        '.current-proposal-card'
-      else if $scope.lastReadSequenceId == -1 or $scope.discussion.lastSequenceId == 0
-        # first view of thread. Start at the top
-        '.thread-context'
-      else if $scope.discussion.lastSequenceId == reader.lastReadSequenceId
-        # already read everything.. take them to the bottom
-        '.activity-card__last-item'
+    $scope.initialLoadSequenceId = ->
+      if $scope.discussion.isUnread()
+        $scope.discussion.reader().lastReadSequenceId - 1
       else
-        '.activity-card__new-activity'
-
-    focusSequenceId = ->
-      if _.isFinite(_.parseInt($location.hash()))
-        # startPosition is manually specified in hash
-        _.parseInt($location.hash())
-      else if $scope.lastReadSequenceId == -1
-        # first view of thread. Start at the top
-        0
-      else if $scope.discussion.lastSequenceId == reader.lastReadSequenceId
-        # already read everything.. take them to the bottom
-        $scope.discussion.lastSequenceId
-      else
-        # start at first unread thing
-        $scope.discussion.lastSequenceId + 1
+        $scope.discussion.lastSequenceId - $scope.pageSize + 1
 
     $scope.beforeCount = ->
       $scope.firstLoadedSequenceId - $scope.discussion.firstSequenceId
@@ -78,30 +45,28 @@ angular.module('loomioApp').directive 'activityCard', ->
     $scope.threadItemVisible = (item) ->
       addSequenceId(item.sequenceId)
       $scope.discussion.markAsRead(item.sequenceId)
-      $scope.loadEventsForwards() if $scope.loadMoreAfterReading(item)
+      $scope.loadEventsForwards($scope.lastLoadedSequenceId) if $scope.loadMoreAfterReading(item)
 
-    $scope.loadEvents = ({from, per, reverse}) ->
+    $scope.loadEvents = ({from, per}) ->
       from = 0 unless from?
       per = $scope.pageSize unless per?
-      reverse = false unless reverse?
 
-      Records.events.fetch(discussion_key: $scope.discussion.key, from: from, per: per, reverse: reverse).then ->
-        if reverse
-          $scope.firstLoadedSequenceId = Records.events.minLoadedSequenceIdByDiscussion($scope.discussion)
-        else
-          $scope.lastLoadedSequenceId = Records.events.maxLoadedSequenceIdByDiscussion($scope.discussion)
+      Records.events.fetchByDiscussion($scope.discussion.key, {from: from, per: per}).then ->
+        $scope.firstLoadedSequenceId = Records.events.minLoadedSequenceIdByDiscussion($scope.discussion)
+        $scope.lastLoadedSequenceId  = Records.events.maxLoadedSequenceIdByDiscussion($scope.discussion)
 
-    $scope.loadEventsForwards = (sequenceId = $scope.lastLoadedSequenceId) ->
+    $scope.loadEventsForwards = (sequenceId) ->
       $scope.loadEvents(from: sequenceId)
     LoadingService.applyLoadingFunction $scope, 'loadEventsForwards'
 
     $scope.loadEventsBackwards = ->
-      $scope.loadEvents(from: $scope.firstLoadedSequenceId, reverse: true)
+      lastPageSequenceId = _.max [$scope.firstLoadedSequenceId - $scope.pageSize, 0]
+      $scope.loadEvents(from: lastPageSequenceId)
     LoadingService.applyLoadingFunction $scope, 'loadEventsBackwards'
 
     $scope.canLoadBackwards = ->
       $scope.firstLoadedSequenceId > $scope.discussion.firstSequenceId and
-      !($scope.loadEventsForwards or $scope.loadEventsBackwards)
+      !($scope.loadEventsForwardsExecuting or $scope.loadEventsBackwardsExecuting)
 
     $scope.loadMoreAfterReading = (item) ->
       item.sequenceId == $scope.lastLoadedSequenceId and
