@@ -1,4 +1,6 @@
 class InboxController < BaseController
+  include DiscussionIndexCacheHelper
+
   def index
     load_inbox
     build_discussion_index_caches
@@ -64,35 +66,6 @@ class InboxController < BaseController
   end
 
   private
-
-  def build_discussion_index_caches
-    @discussions = []
-    @motions = []
-    @inbox.items_by_group do |group, items|
-      items.each do |item|
-        if item.kind_of? Discussion
-          @discussions << item
-        elsif item.kind_of? Motion
-          @motions << item
-        end
-      end
-    end
-
-    if current_user
-      @motion_readers = MotionReader.where(user_id: current_user.id,
-                                           motion_id: @motions.map(&:id) ).includes(:motion)
-      @last_votes = Vote.most_recent.where(user_id: current_user, motion_id: @motions.map(&:id))
-    else
-      @motion_readers = []
-      @last_votes = []
-    end
-
-    @discussion_reader_cache = DiscussionReaderCache.new(user: current_user,
-                                                         discussions: @discussions)
-    @motion_reader_cache = MotionReaderCache.new(current_user, @motion_readers)
-
-    @last_vote_cache = VoteCache.new(current_user, @last_votes)
-  end
 
   def redirect_back_or_head_ok
     if request.xhr?
