@@ -6,8 +6,8 @@ module.exports = class DiscussionPage
     browser.get('http://localhost:8000/angular_support/setup_for_vote_on_proposal')
 
   addComment: (body) ->
-    enterCommentText(body)
-    submitComment()
+    @enterCommentText(body)
+    @submitComment()
 
   enterCommentText: (body) ->
     element(By.css('#comment-field')).sendKeys(body or 'I am a comment')
@@ -23,6 +23,18 @@ module.exports = class DiscussionPage
 
   mostRecentComment: ->
     element.all(By.css('.thread-item--comment')).last()
+
+  replyLinkOnMostRecentComment: ->
+    element.all(By.css('.thread-actions__reply')).last()
+
+  inReplyToOnMostRecentComment: ->
+    element.all(By.css('.new-comment__in-reply-to')).last()
+
+  likeLinkOnMostRecentComment: ->
+    element.all(By.css('.thread-actions__like')).last()
+
+  likedByOnMostRecentComment: ->
+    element.all(By.css('.thread-liked-by-sentence')).last()
 
   startProposalLink: ->
     element(By.css('.start-proposal-card__link'))
@@ -117,7 +129,7 @@ module.exports = class DiscussionPage
     element.all(By.css('a.proposal-collapsed')).first()
 
   mentionList: ->
-    element(By.css('mentio-menu')).first()
+    element(By.css('ul.list-group.user-search'))
     
   firstMentionOption: ->
-    @mentionList().element('li').first()
+    @mentionList().element(By.css('li'))
