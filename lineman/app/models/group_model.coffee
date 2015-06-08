@@ -22,6 +22,12 @@ angular.module('loomioApp').factory 'GroupModel', (BaseModel) ->
       else
         []
 
+    pathSubdomain: ->
+      if @isSubgroup()
+        @parent().subdomain
+      else
+        @subdomain  
+
     memberships: ->
       @recordStore.memberships.find(groupId: @id)
 

@@ -7,52 +7,42 @@ angular.module('loomioApp').factory 'LmoUrlService', ->
     stub: (name) ->
       name.replace(/[^a-z0-9\-_]+/gi, '-').replace(/-+/g, '-').toLowerCase()
 
+    group: (g) ->
+      @groupHost(g) + @groupPath(g)
+
     discussion: (d) ->
-      @urlForPath "/d/#{d.key}/#{@stub(d.title)}"
+      @groupHost(d.group()) + @discussionPath(d)
 
     proposal: (p) ->
-      @urlForPath "/m/#{p.key}/#{@stub(p.name)}"
+      @groupHost(p.discussion().group()) + @proposalPath(p)
 
     comment: (c) ->
       d = c.discussion()
-      @urlForPath "/d/#{d.key}/#{@stub(d.title)}#comment-#{c.id}"
+      @discussion(d) + "#comment#{c.id}"
+    
+    discussionPath: (d) ->
+      "/d/#{d.key}/#{@stub(d.title)}"
 
-    group: (g) ->
-      @forcedSubdomain = @parentGroupSubdomainFor(g)
-      @urlForPath @groupRelativeUrl(g)
+    proposalPath: (p) ->
+      "/m/#{p.key}/#{@stub(p.name)}"
 
-    # force absolute url with subdomain if subgroup's parent has a non-default subdomain
-    parentGroupSubdomainFor: (g) ->
-      if g.isSubgroup() and g.parent().subdomain != @subdomain()
-        g.parent().subdomain
-
-    groupRelativeUrl: (g) ->
-      if g.subdomain == @subdomain()
+    groupPath: (g) ->
+      if "#{g.subdomain}." == @subdomainFor(g)
         "/"
       else
         "/g/#{g.key}/#{@stub(g.fullName())}"
 
-    urlForPath: (path) ->
-      if @urlIsAbsolute()
-        "#{@absoluteUrl()}#{path}"
-      else
-        path
-
-    absoluteUrl: ->
-      "#{@protocol()}#{@subdomain()}.#{@host()}#{@port()}"
-
-    urlIsAbsolute: ->
-      @subdomain() != 'www' or
-      @hostInfo().ssl or 
-      @port().length
+    groupHost: (g) ->
+      "#{@protocol()}#{@subdomainFor(g)}#{@host()}#{@port()}"
 
     protocol: ->
       if @hostInfo().ssl then 'https://' else 'http://'
     
-    subdomain: ->
-      @forcedSubdomain or
-      @hostInfo().default_subdomain or 
-      'www'
+    subdomainFor: (g) ->
+      if subdomain = g.pathSubdomain() or @hostInfo().default_subdomain
+        "#{subdomain}."
+      else
+        ""
 
     host: ->
       @hostInfo().host
