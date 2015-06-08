@@ -9,43 +9,84 @@ describe 'LmoUrlService', ->
       window.Loomio.hostInfo.host = "example.com"
       @group = @factory.create 'groups', name: 'name', key: 'key'
 
-    it 'serves a path when there is no default subdomain', ->
-      expect(@subject.group(@group)).toBe('/g/key/name')
+    contextLocalhost =
+      port: 3000
+      protocol: 'http'
+      default_subdomain: null
+      tld_length: 0
+      host: 'localhost'
 
-    it 'serves a secure path when ssl is turned on', ->
-      Loomio.hostInfo.ssl = true
-      expect(@subject.group(@group)).toBe('https://www.example.com/g/key/name')
+    contextLoomIo =
+      host: 'loom.io'
+      default_subdomain: null
+      tld_length: 1
 
-    it 'can include port in the url', ->
-      Loomio.hostInfo.port = 3000
-      expect(@subject.group(@group)).toBe('http://www.example.com:3000/g/key/name')
+    contextLoomioOrg =
+      host: 'loomio.org'
+      default_subdomain: 'www'
+      tld_length: 1
 
-    it 'does not include port in the url when default port is selected', ->
-      Loomio.hostInfo.port = 80
-      expect(@subject.group(@group)).toBe('/g/key/name')
+    contextAnotherDomain =
+      host: 'loomio.anotherdomain.com'
+      default_subdomain: null
+      tld_length: 2
 
-    it 'serves the default subdomain url when there is a default subdomain', ->
-      Loomio.hostInfo.default_subdomain = 'sub'
-      expect(@subject.group(@group)).toBe('http://sub.example.com/g/key/name')
+    it "handles a group without subdomain on localhost", ->
+      window.Loomio.hostInfo = contextLocalhost
+      expect(@subject.group(@group)).to eq 'http://localhost:3000/g/key/name'
 
-    it 'serves root when the group\'s subdomain is used', ->
-      Loomio.hostInfo.default_subdomain = 'subdomain'
-      @group.updateFromJSON(subdomain: 'subdomain')
-      expect(@subject.group(@group)).toBe('http://subdomain.example.com/')
+    it "handles a group with subdomain on localhost", ->
+      window.Loomio.hostInfo = contextLocalhost
+      @group.updateFromJSON subdomain: 'subdomain'
+      expect(@subject.group(@group)).to eq 'http://subdomain-group.localhost:3000/'
 
-    it 'serves a url when a subgroup has a parent with a subdomain', ->
-      @group.updateFromJSON(subdomain: 'subdomain')
-      @subgroup = @factory.create 'groups', parentId: @group.id, key: 'subkey', name: 'subname'
-      expect(@subject.group(@subgroup)).toBe('http://subdomain.example.com/g/subkey/name-subname')
+    it "handles a subgroup with subdomain on localhost", ->
+      window.Loomio.hostInfo = contextLocalhost
+      @group.updateFromJSON subdomain: 'subdomain'
+      subgroup = @factory.create 'groups', parent_id: @group.id, key: 'subkey', name: 'subname'
+      expect(@subject.group(subgroup)).to eq 'http://subdomain.localhost:3000/g/subkey/subname-name'
 
-    it 'serves the parent\'s subdomain when on a custom subdomain', ->
-      @group.updateFromJSON(subdomain: 'subdomain')
-      Loomio.hostInfo.default_subdomain = 'custom'
-      @subgroup = @factory.create 'groups', parentId: @group.id, key: 'subkey', name: 'subname'
-      expect(@subject.group(@subgroup)).toBe('http://subdomain.example.com/g/subkey/name-subname')
+    it 'handles a group without subdomain on loom.io', ->
+      window.Loomio.hostInfo = contextLoomIo
+      expect(@subject.group(@group)).toBe 'http://loom.io/g/key/name'
 
-    it 'serves a relative path when the parent\'s subdomain is the current subdomain', ->
-      @group.updateFromJSON(subdomain: 'subdomain')
-      Loomio.hostInfo.default_subdomain = 'subdomain'
-      @subgroup = @factory.create 'groups', parentId: @group.id, key: 'subkey', name: 'subname'
-      expect(@subject.group(@subgroup)).toBe('http://subdomain.example.com/g/subkey/name-subname')      
+    it 'handles a group with subdomain on loom.io', ->
+      window.Loomio.hostInfo = contextLoomIo
+      @group.updateFromJSON subdomain: 'subdomain'
+      expect(@subject.group(@group)).toBe 'http://subdomain.loom.io/'
+
+    it 'handles a subgroup with subdomain on loom.io', ->
+      window.Loomio.hostInfo = contextLoomIo
+      @group.updateFromJSON subdomain: 'subdomain'
+      subgroup = @factory.create 'groups', parent_id: @group.id, key: 'subkey', name: 'subname'
+      expect(@subject.group(subgroup)).to eq 'http://subdomain.loom.io/g/subkey/subname-name'
+
+    it 'handles a group without subdomain on loomio.org', ->
+      window.Loomio.hostInfo = contextLoomIo
+      expect(@subject.group(@group)).toBe 'http://www.loomio.org/g/key/name'
+
+    it 'handles a group with subdomain on loomio.org', ->
+      window.Loomio.hostInfo = contextLoomIo
+      @group.updateFromJSON subdomain: 'subdomain'
+      expect(@subject.group(@group)).toBe 'http://subdomain.loomio.org/'
+
+    it 'handles a subgroup with subdomain on loomio.org', ->
+      window.Loomio.hostInfo = contextLoomIo
+      @group.updateFromJSON subdomain: 'subdomain'
+      subgroup = @factory.create 'groups', parent_id: @group.id, key: 'subkey', name: 'subname'
+      expect(@subject.group(subgroup)).to eq 'http://subdomain.loomio.org/g/subkey/subname-name'
+
+    it 'handles a group without subdomain on loomio.anotherdomain.com', ->
+      window.Loomio.hostInfo = contextAnotherDomain
+      expect(@subject.group(@group)).toBe 'http://loomio.anotherdomain.com/g/key/name'
+
+    it 'handles a group with subdomain on loomio.anotherdomain.com', ->
+      window.Loomio.hostInfo = contextAnotherDomain
+      @group.updateFromJSON subdomain: 'subdomain'
+      expect(@subject.group(@group)).toBe 'http://subdomain.loomio.anotherdomain.com/'
+
+    it 'handles a subgroup with subdomain on loomio.anotherdomain.com', ->
+      window.Loomio.hostInfo = contextAnotherDomain
+      @group.updateFromJSON subdomain: 'subdomain'
+      subgroup = @factory.create 'groups', parent_id: @group.id, key: 'subkey', name: 'subname'
+      expect(@subject.group(subgroup)).to eq 'http://subdomain.loomio.anotherdomain.com/g/subkey/subname-name'
